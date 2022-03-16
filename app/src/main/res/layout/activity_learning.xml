@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bac"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/tlo_1"
+    tools:context=".LearningActivity">
+
+    <ImageView
+        android:id="@+id/imageViewWord"
+        android:layout_width="0dp"
+        android:layout_height="250dp"
+        android:layout_marginTop="10dp"
+        android:contentDescription="@string/word_photot"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_launcher_foreground"
+        tools:ignore="ImageContrastCheck" />
+
+    <TextView
+        android:id="@+id/textViewWords"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewWord" />
+
+    <Button
+        android:id="@+id/buttonCheckAnswere"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/next_world"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewWords" />
+
+    <Button
+        android:id="@+id/buttonContinue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/continue_1"
+        android:textSize="24sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewWords" />
+
+    <EditText
+        android:id="@+id/editTextAnswere"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/plain_text_1"
+        android:inputType="textPersonName"
+        android:textColorHint="#AFABAB"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCheckAnswere"
+        tools:ignore="TextContrastCheck" />
+
+    <ImageButton
+        android:id="@+id/imageButtonSound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:contentDescription="@string/sound"
+        app:layout_constraintEnd_toStartOf="@+id/buttonCheckAnswere"
+        app:layout_constraintTop_toBottomOf="@+id/textViewWords"
+        app:srcCompat="@android:drawable/ic_lock_silent_mode_off"
+        tools:ignore="ImageContrastCheck" />
+
+    <ImageView
+        android:id="@+id/imageViewAnswere"
+        android:layout_width="70dp"
+        android:layout_height="71dp"
+        android:layout_marginStart="20dp"
+        android:contentDescription="@string/image_desc"
+        app:layout_constraintStart_toEndOf="@+id/buttonCheckAnswere"
+        app:layout_constraintTop_toBottomOf="@+id/textViewWords"
+        tools:ignore="ImageContrastCheck" />
+
+    <Button
+        android:id="@+id/buttonIDontKnow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#953455"
+        android:padding="15dp"
+        android:text="@string/button_i_don_know"
+        android:textSize="34sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextAnswere" />
+
+    <Button
+        android:id="@+id/buttonFinishLesson"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#C1B443"
+        android:text="@string/button_finish_lesson"
+        android:textColor="#7A1D8A"
+        android:textSize="48sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextAnswere"
+        app:layout_constraintVertical_bias="0.509" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

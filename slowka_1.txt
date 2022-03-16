@@ -1,0 +1,62 @@
+socks - skarpetki
+pants - spodnie
+happy - szczęśliwy
+angry - zły
+shiny - błyszczący
+curtain - zasłona
+mask - maska
+coverlet - kołdra/kocyk
+floor panels = panele podłogowe
+flashlight - latarka
+
+
+
+https://sqliteonline.com/
+
+
+--SELECT date('now', '+1000 minute');
+--SELECT dateTIME(SELECT dateTIME('now', '+10 minute'), '- ' || SELECT dateTIME('now)) ;
+
+CREATE TABLE my_data(
+  					data_1 TEXT,
+  					data_2 TEXT,
+  					data_3);
+
+INSERT INto my_data
+VALUES ( datetime('now'),
+         datetime('now', '+30 hour'),
+         datetime('now', '+300 minute')
+        );
+
+ALTER TABLE my_data
+ADD powtarzenia TEXT;
+
+SELECT * FROM my_data
+WHERE data_2 >= data_1;
+
+UPDATE TABLE my_data
+SET powtarzenia = '+10 minute'
+
+-- ------------------------------------------------------------
+CREATE TABLE my_date(
+  					date_1 TEXT, -- Data Wykonanej powtórki
+  					replay_time TEXT -- Czas po którym ma wystąpić kolejna powtórka Wzór: '+2 minute'
+  					);
+  
+  
+  
+INSERT INto my_date (date_1, replay_time)
+VALUES ( datetime('now', 'localtime'),  --, '-4 minute'  - argument do testów
+         '+5 minute'
+        );
+
+
+
+SELECT * FROM my_date;
+
+SELECT * from my_date
+WHERE DATETIME('now', 'localtime') >= DATETIME(date_1, replay_time)
+
+  
+                                                                               
+                                                                              

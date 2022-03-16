@@ -1,0 +1,224 @@
+package com.example.angielski
+
+import android.annotation.SuppressLint
+import android.content.ContentValues
+import android.graphics.Color
+import android.media.MediaParser
+import android.media.MediaPlayer
+import android.opengl.Visibility
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.provider.BaseColumns
+import android.view.View
+import android.widget.Toast
+import com.example.angielski.databinding.ActivityMainBinding
+import com.example.angielski.databinding.ActivitySecondBinding
+import java.lang.reflect.Array
+
+class SecondActivity : AppCompatActivity() {
+
+    //Linijka ktora trzeba dodac
+    private lateinit var binding: ActivitySecondBinding
+
+
+    @SuppressLint("Range")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_second)
+
+        //2 linijki ktore trzeba dodac https://youtu.be/qbq5PR-l5ZU?t=634
+        binding = ActivitySecondBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Przejecie danych z głownej aktywności , mowiace o tym czy to powtórki czy nauka
+        val isLearning = getIntent().getBooleanExtra("is_learning",false)
+
+        val dbHelper = DataBaseHelper(applicationContext)
+        val db = dbHelper.readableDatabase
+        val query: String
+        if(isLearning){
+            query = "SELECT * FROM " + TableInfo.TABLE_NAME +
+                    " WHERE ${TableInfo.TABLE_COLUMN_IS_LEARNED} = 'f' "
+        }
+        else{
+            query = "SELECT * FROM " + TableInfo.TABLE_NAME +
+                    " WHERE ${TableInfo.TABLE_COLUMN_IS_LEARNED} = 't' "+
+                    " AND DATETIME('now', 'localtime') >= DATETIME(${TableInfo.TABLE_COLUMN_DATE},${TableInfo.TABLE_COLUMN_REPLAY}); "
+        }
+        var str: String = ""
+        var tab = Array(2) {Array(10) {0} }
+        
+        for(i in tab[0].indices){
+
+        }
+        
+//        for (x_ in m){
+//            for(x in x_){
+//                str += x
+//            }
+//        }
+//
+//        Toast.makeText(applicationContext, m[0][0].toString(), Toast.LENGTH_SHORT).show()
+//        while(true){
+//
+//            result.move(1)
+//            result.moveToFirst()
+//            // Jesli Skończą sie wszystkie słówka
+//            if(true){
+//                break
+//            }
+//        }
+
+        val result = db.rawQuery(query,null)
+
+//        db.close()
+
+
+        var englishWord: String = ""
+        var polishWord: String = ""
+        var answere: String = ""
+
+        // Załadowanie za piperwszym razem danych
+        if(result.moveToFirst()){
+            polishWord =  result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
+            binding.textView1.setText(polishWord)
+            englishWord = result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
+//            binding.imageView2.setImageResource(result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)).toInt())
+            val id = resources.getIdentifier(result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+            binding.imageView2.setImageResource(id)
+        }
+
+
+
+        // ----- Obsługa przycisku "Sprawdz"
+        binding.button.setOnClickListener {
+
+            answere = binding.editTextTextPersonName.text.toString()
+
+            binding.textView1.setText(polishWord + " - "+ englishWord)
+
+            //Jeśli poprawna odpowiedz
+            if(checkAnswere.check(englishWord,answere)){
+                MediaPlayer.create(this,R.raw.duolingo_1).start()
+                binding.imageView3.setImageResource(R.drawable.answere_1)
+
+                val replay = result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_REPLAY))
+                var new_replay: String = ""
+                var new_is_learned = "'t'"
+
+                when (replay){
+                    "+1 second" -> new_replay = "'+2 second'"
+                    "+2 second" -> new_replay = "'+3 second'"
+                    "+3 second" -> new_replay = "'+4 second'"
+                    "+4 second" ->{
+                        new_is_learned = "'ct'"
+                        new_replay = "'+0 second'"
+//                        Toast.makeText(applicationContext, "8 minute", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+//                        Toast.makeText(applicationContext, "else", Toast.LENGTH_SHORT).show()
+                        new_replay = "'+1 second'"
+                    }
+
+
+                }
+
+
+                // ------ Zmiana w bazie na t - true , columny is_learned. Oznacza, że słówko jest nauczone -----
+//                val value_1 = ContentValues()
+//                value_1.put("is_learned", "t")
+//                value_1.put(TableInfo.TABLE_COLUMN_DATE, "DATE('now', 'localtime')")
+//                value_1.put(TableInfo.TABLE_COLUMN_REPLAY, "+5 minute")
+//                db.update(TableInfo.TABLE_NAME, value_1, "_id = ${result.getString(result.getColumnIndex(BaseColumns._ID))}", arrayOf() )
+
+
+                val query_update = "UPDATE ${TableInfo.TABLE_NAME} "+
+                        "SET ${TableInfo.TABLE_COLUMN_IS_LEARNED} = ${new_is_learned}, " +
+                        "${TableInfo.TABLE_COLUMN_DATE} = DATETIME('now', 'localtime'), " +
+                        "${TableInfo.TABLE_COLUMN_REPLAY} =  $new_replay "+
+                        " WHERE ${BaseColumns._ID} = ${result.getString(result.getColumnIndex(BaseColumns._ID))};" //_id  ${result.getString(result.getColumnIndex(BaseColumns._ID))}
+
+//                db.rawQuery(query_update, null)
+                db.execSQL(query_update)
+
+            }
+            //Jesli bledna odpowiedz
+            else
+            {
+                MediaPlayer.create(this,R.raw.duolingo_2).start()
+                binding.imageView3.setImageResource(R.drawable.answere_2)
+            }
+            binding.imageView3.visibility = View.VISIBLE
+            binding.button.visibility = View.INVISIBLE
+            binding.button2.visibility = View.VISIBLE
+
+            hideKeyboard()
+            binding.editTextTextPersonName.setText("")
+
+
+
+
+
+
+        }
+
+        // Obsługa drugiego przycisku "KONTYNUJ"
+        binding.button2.setOnClickListener {
+            binding.button2.setVisibility(View.INVISIBLE)
+            binding.button.setVisibility(View.VISIBLE)
+            binding.imageView3.setVisibility(View.INVISIBLE)
+            if(result.moveToNext()){
+                polishWord = result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
+                binding.textView1.setText(polishWord)
+                englishWord = result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
+//                binding.textView2.setText(result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH)))
+//                binding.imageView2.setImageResource(result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)).toInt())
+
+                val id = resources.getIdentifier(result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+                binding.imageView2.setImageResource(id)
+
+            //                MediaPlayer.create(this,result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ID_SOUND)).toInt()).start()
+
+            }
+            else{
+                binding.button.visibility = View.INVISIBLE
+                binding.editTextTextPersonName.visibility = View.INVISIBLE
+                binding.imageButton.visibility = View.INVISIBLE
+                binding.imageView2.setImageResource(R.drawable.finish_lesson)
+                binding.textView1.text = "KONIEC LEKCJI"
+                binding.textView1.textSize = 40f
+                binding.textView1.setTextColor(Color.parseColor("#C1B443"))
+                binding.button4.visibility = View.INVISIBLE
+                binding.button3.visibility = View.VISIBLE
+                MediaPlayer.create(this, R.raw.finish_lesson).start()
+            }
+        }
+
+        binding.imageButton.setOnClickListener{
+            val id = resources.getIdentifier(result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "raw", packageName )
+            MediaPlayer.create(this,id).start()
+        }
+
+        // Obsługa przycisku "NIE WIEM"
+        binding.button4.setOnClickListener {
+            MediaPlayer.create(this,R.raw.duolingo_3).start()
+            binding.textView1.text = "$polishWord - $englishWord"
+            binding.imageView3.setImageResource(R.drawable.answere_2)
+            binding.imageView3.visibility = View.VISIBLE
+            binding.button.visibility = View.INVISIBLE
+            binding.button2.visibility = View.VISIBLE
+
+        }
+
+        // Obsługa przycisku "Zakończ lekcje", któy wyświetla się po zakończeniu lekcji
+        binding.button3.setOnClickListener {
+            finish() // Kończy działanie bierzącej aktywności i powraca do głownego MENU
+        }
+
+//        result.close()
+//        db.close()
+
+
+
+    }
+}
