@@ -18,9 +18,11 @@ object TableInfo: BaseColumns{
     const val TABLE_COLUMN_ENGLISH = "english_word"
     const val TABLE_COLUMN_ID_PICTURE = "id_picture"
     const val TABLE_COLUMN_ID_SOUND = "id_sound"
-    const val TABLE_COLUMN_IS_LEARNED = "is_learned"
+    const val TABLE_COLUMN_LEARNED_PL_TO_ANG = "learned_pl_to_ang"
+    const val TABLE_COLUMN_LEARNED_ANG_TO_PL = "learned_ang_to_pl"
     const val TABLE_COLUMN_DATE = "date_1"
-    const val TABLE_COLUMN_REPLAY = "replay_time"
+    const val TABLE_COLUMN_REPLAY_PL_TO_ANG = "replay_time_pl_to_ang"
+    const val TABLE_COLUMN_REPLAY_ANG_TO_PL = "replay_time_ang_to_pl"
 }
 
 //  ---------   PODSTAWOWE KOMENDY SQL  ---------------
@@ -32,9 +34,12 @@ object BasicCommand{
                 "${TableInfo.TABLE_COLUMN_ENGLISH} TEXT NOT NULL,"+
                 "${TableInfo.TABLE_COLUMN_ID_PICTURE} INTEGER NOT NULL,"+
                 "${TableInfo.TABLE_COLUMN_ID_SOUND} INTEGER ,"+
-                "${TableInfo.TABLE_COLUMN_IS_LEARNED} TEXT NOT NULL,"+
+                "${TableInfo.TABLE_COLUMN_LEARNED_PL_TO_ANG} TEXT NOT NULL,"+
+                "${TableInfo.TABLE_COLUMN_LEARNED_ANG_TO_PL} TEXT NOT NULL,"+
                 "${TableInfo.TABLE_COLUMN_DATE} TEXT ,"+
-                "${TableInfo.TABLE_COLUMN_REPLAY} TEXT)"
+                "${TableInfo.TABLE_COLUMN_REPLAY_PL_TO_ANG} TEXT ,"+
+                "${TableInfo.TABLE_COLUMN_REPLAY_ANG_TO_PL} TEXT );"
+
 
     const val SQL_DELETE_TABLE = "DROP TABLE IF EXISTS ${TableInfo.TABLE_NAME}"
 }
@@ -60,7 +65,8 @@ object fillDataBase{
         value_1.put("english_word", "angry")
         value_1.put("id_picture", "angry")
 //        value_1.put("id_sound", R.raw.angry.toString())
-        value_1.put("is_learned", "f")
+        value_1.put("learned_pl_to_ang", "f")
+        value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
         //   --------------------------------
         value_1.clear()
@@ -68,7 +74,8 @@ object fillDataBase{
         value_1.put("english_word", "coverlet")
         value_1.put("id_picture", "coverlet")
 //        value_1.put("id_sound", R.raw.coverlet.toString())
-        value_1.put("is_learned", "f")
+        value_1.put("learned_pl_to_ang", "f")
+        value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
         //   --------------------------------
         value_1.clear()
@@ -76,7 +83,8 @@ object fillDataBase{
         value_1.put("english_word", "curtain")
         value_1.put("id_picture", "curtain")
 //        value_1.put("id_sound", R.raw.curtain.toString())
-        value_1.put("is_learned", "f")
+        value_1.put("learned_pl_to_ang", "f")
+        value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
         //   --------------------------------
         value_1.clear()
@@ -84,7 +92,8 @@ object fillDataBase{
         value_1.put("english_word", "flashlight")
         value_1.put("id_picture", "flashlight")
 //        value_1.put("id_sound", R.raw.flashlight.toString())
-        value_1.put("is_learned", "f")
+        value_1.put("learned_pl_to_ang", "f")
+        value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
         //   --------------------------------
         value_1.clear()
@@ -92,7 +101,8 @@ object fillDataBase{
         value_1.put("english_word", "floor panels")
         value_1.put("id_picture", "floor_panels")
 //        value_1.put("id_sound", R.raw.floor_panels.toString())
-        value_1.put("is_learned", "f")
+        value_1.put("learned_pl_to_ang", "f")
+        value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
         //   --------------------------------
         value_1.clear()
@@ -100,7 +110,8 @@ object fillDataBase{
         value_1.put("english_word", "happy")
         value_1.put("id_picture", "happy")
 //        value_1.put("id_sound", R.raw.happy.toString())
-        value_1.put("is_learned", "f")
+        value_1.put("learned_pl_to_ang", "f")
+        value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
         //   --------------------------------
         value_1.clear()
@@ -108,7 +119,8 @@ object fillDataBase{
         value_1.put("english_word", "mask")
         value_1.put("id_picture", "mask")
 //        value_1.put("id_sound", R.raw.mask.toString())
-        value_1.put("is_learned", "f")
+        value_1.put("learned_pl_to_ang", "f")
+        value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
         //   --------------------------------
         value_1.clear()
@@ -116,7 +128,8 @@ object fillDataBase{
         value_1.put("english_word", "pants")
         value_1.put("id_picture", "pants")
 //        value_1.put("id_sound", R.raw.pants.toString())
-        value_1.put("is_learned", "f")
+        value_1.put("learned_pl_to_ang", "f")
+        value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
         //   --------------------------------
         value_1.clear()
@@ -124,7 +137,8 @@ object fillDataBase{
         value_1.put("english_word", "shiny")
         value_1.put("id_picture", "shiny")
 //        value_1.put("id_sound", R.raw.shiny.toString())
-        value_1.put("is_learned", "f")
+        value_1.put("learned_pl_to_ang", "f")
+        value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
         //   --------------------------------
         value_1.clear()
@@ -132,7 +146,8 @@ object fillDataBase{
         value_1.put("english_word", "socks")
         value_1.put("id_picture", "socks")
 //        value_1.put("id_sound", R.raw.socks.toString())
-        value_1.put("is_learned", "f")
+        value_1.put("learned_pl_to_ang", "f")
+        value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
 
 

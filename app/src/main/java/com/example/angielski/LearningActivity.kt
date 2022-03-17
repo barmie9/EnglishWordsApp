@@ -1,19 +1,17 @@
 package com.example.angielski
 
 import android.annotation.SuppressLint
-import android.content.ContentValues
+import android.content.SharedPreferences
 import android.graphics.Color
-import android.media.MediaParser
 import android.media.MediaPlayer
-import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.BaseColumns
+import android.util.Log
 import android.view.View
-import android.widget.Toast
 import com.example.angielski.databinding.ActivityLearningBinding
 import com.example.angielski.databinding.ActivityMainBinding
-import java.lang.reflect.Array
+import java.util.*
 
 class LearningActivity : AppCompatActivity() {
 
@@ -26,182 +24,246 @@ class LearningActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_learning)
 
+        val TAG = "TAG"
+
         //2 linijki ktore trzeba dodac https://youtu.be/qbq5PR-l5ZU?t=634
         binding = ActivityLearningBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Przejecie danych z głownej aktywności , mowiace o tym czy to powtórki czy nauka
+        // ----- Take data from the main activity, REPEAT OR LEARNING -----
         val isLearning = getIntent().getBooleanExtra("is_learning",false)
 
+        // ----- Get local file (variable) "Settings", to read an edit "editor"-----
+        val sharedPref: SharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = sharedPref.edit()
+
+        // ----- Open database -----
         val dbHelper = DataBaseHelper(applicationContext)
         val db = dbHelper.readableDatabase
-        val query: String
+        val query1: String
+        val query2: String
+        val query: Array<String> = arrayOf("","")
+
+        // ----- Create a few query to db, to repeating or learning  -----
         if(isLearning){
-            query = "SELECT * FROM " + TableInfo.TABLE_NAME +
-                    " WHERE ${TableInfo.TABLE_COLUMN_IS_LEARNED} = 'f' "
+            query1 = "SELECT * FROM " + TableInfo.TABLE_NAME +
+                    " WHERE ${TableInfo.TABLE_COLUMN_LEARNED_PL_TO_ANG} = 'f' "
+            query2 = "SELECT * FROM " + TableInfo.TABLE_NAME +
+                    " WHERE ${TableInfo.TABLE_COLUMN_LEARNED_ANG_TO_PL} = 'f' "
+            query[0] = query1
+            query[1] = query2
         }
         else{
-            query = "SELECT * FROM " + TableInfo.TABLE_NAME +
-                    " WHERE ${TableInfo.TABLE_COLUMN_IS_LEARNED} = 't' "+
-                    " AND DATETIME('now', 'localtime') >= DATETIME(${TableInfo.TABLE_COLUMN_DATE},${TableInfo.TABLE_COLUMN_REPLAY}); "
+            query1 = "SELECT * FROM " + TableInfo.TABLE_NAME +
+                    " WHERE ${TableInfo.TABLE_COLUMN_LEARNED_PL_TO_ANG} = 't' "+
+                    " AND DATETIME('now', 'localtime') >= DATETIME(${TableInfo.TABLE_COLUMN_DATE},${TableInfo.TABLE_COLUMN_REPLAY_PL_TO_ANG}); "
+            query2 = "SELECT * FROM " + TableInfo.TABLE_NAME +
+                    " WHERE ${TableInfo.TABLE_COLUMN_LEARNED_ANG_TO_PL} = 't' "+
+                    " AND DATETIME('now', 'localtime') >= DATETIME(${TableInfo.TABLE_COLUMN_DATE},${TableInfo.TABLE_COLUMN_REPLAY_ANG_TO_PL}); "
+
+            query[0] = query1
+            query[1] = query2
+
         }
 
-        val result = db.rawQuery(query,null)
+        // ----- get two tables from db for the ang->pl and pl->ang -----
+        val result = Array(2){i -> db.rawQuery(query[i],null)}
+//        val result1 = db.rawQuery(query1,null)
+//        val result2 = db.rawQuery(query2,null)
+
+        // ----- create a few variables for proper operation -----
         var englishWord: String = ""
         var polishWord: String = ""
         var answere: String = ""
+        var wordsCounter = arrayOf(0,0) // Counter of correct  words
+        val wordsToLearnName = arrayOf("WordsToLearnPlToEng","WordsToLearnEngToPl")
+        val wordsToLearn  = arrayOf(sharedPref.getInt("WordsToLearnPlToEng",9),sharedPref.getInt("WordsToLearnEngToPl",9)) // number of words to learn, for index 0 - pl->ang and 1 ang->pl
+        var ii:Int =0 // Actual words (Column) - Words
+        var jj:Int =0 // ang-> pl or pl-> ang
 
-        // Załadowanie za piperwszym razem danych
-        if(result.moveToFirst()){
-            polishWord =  result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
-            binding.textViewWords.text = polishWord
-            englishWord = result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
-            val id = resources.getIdentifier(result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
-            binding.imageViewWord.setImageResource(id)
+        // ----- For the tests ----
+        Log.d(TAG, "${wordsToLearn[0]} , ${wordsToLearn[1]}")
+
+        // ----- Create and fill a queue. Needed to repeat words until they are learned -----
+        var myQueue: Queue<Array<Int>> = LinkedList<Array<Int>>()
+        var exampleTab: Array<Int> = arrayOf(0,1)
+        for(i in 0..1)
+            for(j in 0 until wordsToLearn[i])
+                myQueue.add(arrayOf(i,j))
+
+
+
+
+//        Log.d(TAG,"wordsCounter->${wordsCounter[jj]} , wordsCounter->${wordsToLearn[jj]} , ii->${ii} , jj->${jj} ,")
+
+        // ----- if queue is not empty fill the initial layout elements -----
+        if(!myQueue.isEmpty()){
+
+            val myOneTab = myQueue.poll()
+            ii = myOneTab[1]
+            jj = myOneTab[0]
+
+            // ----- Fill data the first time -----
+            if(result[0].moveToFirst() ){
+                polishWord =  result[0].getString(result[0].getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
+                binding.textViewWords.text = polishWord
+                englishWord = result[0].getString(result[0].getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
+                val id = resources.getIdentifier(result[0].getString(result[0].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+                binding.imageViewWord.setImageResource(id)
+            }
+            else // If data pl->ang does not exist
+            {
+                if(result[1].moveToFirst()){
+                    polishWord =  result[1].getString(result[1].getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
+                    binding.textViewWords.text = polishWord
+                    englishWord = result[1].getString(result[1].getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
+                    val id = resources.getIdentifier(result[1].getString(result[1].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+                    binding.imageViewWord.setImageResource(id)
+                }
+                else // ----- Finish lesson -----
+                    setViewFinishLesson()
+            }
+        }
+        else{ // ----- Finish lesson -----
+            setViewFinishLesson()
         }
 
 
-        var str: String = ""
-        var tab = Array(2) {Array(10) {0} }
 
-        // Pętla przechodząca wszystkie słówka z bazy dopóki nie zostaną wszystkie nauczone,
-        // zarówno z ang->pl jak i pl->ang
-        for(i in tab[0].indices){
 
-            // ----- Obsługa przycisku "Sprawdz"
-            binding.buttonCheckAnswere.setOnClickListener {
 
-                answere = binding.editTextAnswere.text.toString()
+        // ----- Support for the "Check" button -----
+        binding.buttonCheckAnswere.setOnClickListener {
 
+            // ----- Get data from user -----
+            answere = binding.editTextAnswere.text.toString()
+
+            if(jj ==  0)
                 binding.textViewWords.text = "$polishWord - $englishWord"
+            else
+                binding.textViewWords.text = "$englishWord - $polishWord"
 
-                //Jeśli poprawna odpowiedz
-                if(checkAnswere.check(englishWord,answere)){
-                    MediaPlayer.create(this,R.raw.duolingo_1).start()
-                    binding.imageViewAnswere.setImageResource(R.drawable.answere_1)
+            // ----- If correct data -----
+            if(checkAnswere.check(englishWord,answere)){
 
-                    val replay = result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_REPLAY))
-                    var newReplay: String = ""
-                    var newIsLearned = "'t'"
+                // ----- Increment  wordsCounter and update  LOCAL variable words to learn (ang->pl and pl->ang) -----
+                wordsCounter[jj]++
+                editor.putInt(wordsToLearnName[jj], wordsToLearn[jj] - wordsCounter[jj])
+                editor.apply()
 
-                    when (replay){
-                        "+1 second" -> newReplay = "'+2 second'"
-                        "+2 second" -> newReplay = "'+3 second'"
-                        "+3 second" -> newReplay = "'+4 second'"
-                        "+4 second" ->{
-                            newIsLearned = "'ct'"
-                            newReplay = "'+0 second'"
-//                        Toast.makeText(applicationContext, "8 minute", Toast.LENGTH_SHORT).show()
-                        }
-                        else -> {
-//                        Toast.makeText(applicationContext, "else", Toast.LENGTH_SHORT).show()
-                            newReplay = "'+1 second'"
-                        }
+                // ----- Good sound -----
+                MediaPlayer.create(this,R.raw.duolingo_1).start()
+                binding.imageViewAnswere.setImageResource(R.drawable.answere_1)
 
 
+                // ----- If the words from eng->pl or pl->ang learned, update the database -----
+                val replay = arrayOf(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_REPLAY_PL_TO_ANG)),
+                    result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_REPLAY_PL_TO_ANG)))
+                val tableColumnIsLearned = arrayOf("learned_pl_to_ang","learned_ang_to_pl")
+                val tableColumnReplay = arrayOf("replay_time_pl_to_ang","replay_time_ang_to_pl")
+                var newReplay: String = ""
+                var newIsLearned = "'t'"
+
+                when (replay[jj]){
+                    "+1 second" -> newReplay = "'+2 second'"
+                    "+2 second" -> newReplay = "'+3 second'"
+                    "+3 second" -> newReplay = "'+4 second'"
+                    "+4 second" ->{
+                        newIsLearned = "'ct'"
+                        newReplay = "'+0 second'"
+                    }
+                    else -> {
+                        newReplay = "'+1 second'"
                     }
 
 
-                    val queryUpdate = "UPDATE ${TableInfo.TABLE_NAME} "+
-                            "SET ${TableInfo.TABLE_COLUMN_IS_LEARNED} = ${newIsLearned}, " +
-                            "${TableInfo.TABLE_COLUMN_DATE} = DATETIME('now', 'localtime'), " +
-                            "${TableInfo.TABLE_COLUMN_REPLAY} =  $newReplay "+
-                            " WHERE ${BaseColumns._ID} = ${result.getString(result.getColumnIndex(BaseColumns._ID))};" //_id  ${result.getString(result.getColumnIndex(BaseColumns._ID))}
+                }
+
+
+                val queryUpdate = "UPDATE ${TableInfo.TABLE_NAME} "+
+                        "SET ${tableColumnIsLearned[jj]} = ${newIsLearned}, " +
+                        "${TableInfo.TABLE_COLUMN_DATE} = DATETIME('now', 'localtime'), " +
+                        "${tableColumnReplay[jj]} =  $newReplay "+
+                        " WHERE ${BaseColumns._ID} = ${result[jj].getString(result[jj].getColumnIndex(BaseColumns._ID))};" //_id  ${result.getString(result.getColumnIndex(BaseColumns._ID))}
 
 //                db.rawQuery(query_update, null)
-                    db.execSQL(queryUpdate)
-
-                }
-                //Jesli bledna odpowiedz
-                else
-                {
-                    MediaPlayer.create(this,R.raw.duolingo_2).start()
-                    binding.imageViewAnswere.setImageResource(R.drawable.answere_2)
-                }
-                binding.imageViewAnswere.visibility = View.VISIBLE
-                binding.buttonCheckAnswere.visibility = View.INVISIBLE
-                binding.buttonContinue.visibility = View.VISIBLE
-
-                hideKeyboard()
-                binding.editTextAnswere.setText("")
-
+                db.execSQL(queryUpdate)
 
 
             }
-
-            // Obsługa drugiego przycisku "KONTYNUJ"
-            binding.buttonContinue.setOnClickListener {
-                binding.buttonContinue.visibility = View.INVISIBLE
-                binding.buttonCheckAnswere.visibility = View.VISIBLE
-                binding.imageViewAnswere.visibility = View.INVISIBLE
-                Toast.makeText(applicationContext, (i).toString(), Toast.LENGTH_SHORT).show()
-                if(result.moveToPosition(0)){
-                    polishWord = result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
-                    binding.textViewWords.text = polishWord
-                    englishWord = result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
-
-                    val id = resources.getIdentifier(result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
-                    binding.imageViewWord.setImageResource(id)
-
-                    //                MediaPlayer.create(this,result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ID_SOUND)).toInt()).start()
-
-                }
-                else{
-                    binding.buttonCheckAnswere.visibility = View.INVISIBLE
-                    binding.editTextAnswere.visibility = View.INVISIBLE
-                    binding.imageButtonSound.visibility = View.INVISIBLE
-                    binding.imageViewWord.setImageResource(R.drawable.finish_lesson)
-                    binding.textViewWords.text = "KONIEC LEKCJI"
-                    binding.textViewWords.textSize = 40f
-                    binding.textViewWords.setTextColor(Color.parseColor("#C1B443"))
-                    binding.buttonIDontKnow.visibility = View.INVISIBLE
-                    binding.buttonFinishLesson.visibility = View.VISIBLE
-                    MediaPlayer.create(this, R.raw.finish_lesson).start()
-                }
-            }
-
-            binding.imageButtonSound.setOnClickListener{
-                val id = resources.getIdentifier(result.getString(result.getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "raw", packageName )
-                MediaPlayer.create(this,id).start()
-            }
-
-            // Obsługa przycisku "NIE WIEM"
-            binding.buttonIDontKnow.setOnClickListener {
-                MediaPlayer.create(this,R.raw.duolingo_3).start()
-                binding.textViewWords.text = "$polishWord - $englishWord"
+            // ----- If answer is wrong -----
+            else
+            {
+                myQueue.add(arrayOf(jj,ii))
+                MediaPlayer.create(this,R.raw.duolingo_2).start()
                 binding.imageViewAnswere.setImageResource(R.drawable.answere_2)
-                binding.imageViewAnswere.visibility = View.VISIBLE
-                binding.buttonCheckAnswere.visibility = View.INVISIBLE
-                binding.buttonContinue.visibility = View.VISIBLE
-
             }
+            binding.imageViewAnswere.visibility = View.VISIBLE
+            binding.buttonCheckAnswere.visibility = View.INVISIBLE
+            binding.buttonContinue.visibility = View.VISIBLE
 
-            // Obsługa przycisku "Zakończ lekcje", któy wyświetla się po zakończeniu lekcji
-            binding.buttonFinishLesson.setOnClickListener {
-                finish() // Kończy działanie bierzącej aktywności i powraca do głownego MENU
-            }
+            hideKeyboard()
+            binding.editTextAnswere.setText("")
 
-//        result.close()
-//        db.close()
+
 
         }
 
-//        for (x_ in m){
-//            for(x in x_){
-//                str += x
-//            }
-//        }
-//
-//        Toast.makeText(applicationContext, m[0][0].toString(), Toast.LENGTH_SHORT).show()
-//        while(true){
-//
-//            result.move(1)
-//            result.moveToFirst()
-//            // Jesli Skończą sie wszystkie słówka
-//            if(true){
-//                break
-//            }
-//        }
+        // ----- Support for the second "CONTINUE" button -----
+        binding.buttonContinue.setOnClickListener {
+            if(myQueue.isEmpty()){
+                setViewFinishLesson()
+            }
+            else{
+                val myTab = myQueue.poll()
+                ii = myTab[1]
+                jj = myTab[0]
+
+                Log.d(TAG,"wordsCounter->${wordsCounter[jj]} , wordsCounter->${wordsToLearn[jj]} , ii->${ii} , jj->${jj} ,")
+
+                binding.buttonContinue.visibility = View.INVISIBLE
+                binding.buttonCheckAnswere.visibility = View.VISIBLE
+                binding.imageViewAnswere.visibility = View.INVISIBLE
+                if(result[jj].moveToPosition(ii)){
+                    polishWord = result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
+                    englishWord = result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
+                    if (jj == 1){
+                        var buf = polishWord
+                        polishWord = englishWord
+                        englishWord = buf
+                    }
+                    binding.textViewWords.text = polishWord
+
+                    val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+                    binding.imageViewWord.setImageResource(id)
+
+                }
+            }
+
+        }
+
+        binding.imageButtonSound.setOnClickListener{
+            val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "raw", packageName )
+            MediaPlayer.create(this,id).start()
+        }
+
+        // ----- Support for the second "IDontKnow" button
+        binding.buttonIDontKnow.setOnClickListener {
+            MediaPlayer.create(this,R.raw.duolingo_3).start()
+            binding.textViewWords.text = "$polishWord - $englishWord"
+            binding.imageViewAnswere.setImageResource(R.drawable.answere_2)
+            binding.imageViewAnswere.visibility = View.VISIBLE
+            binding.buttonCheckAnswere.visibility = View.INVISIBLE
+            binding.buttonContinue.visibility = View.VISIBLE
+
+        }
+
+        // ----- Support for the "End lessons" button that is displayed after the end of the lesson -----
+        binding.buttonFinishLesson.setOnClickListener {
+            finish() // Kończy działanie bierzącej aktywności i powraca do głownego MENU
+            db.close() // DO SPRAWDZENIA !!!!!!!!!!!!!!
+        }
+
 
 
 //        db.close()
@@ -214,5 +276,19 @@ class LearningActivity : AppCompatActivity() {
 
 
 //--------------------------------------------------------------------------------------------------------
+    }
+
+    fun setViewFinishLesson(){
+        binding.buttonCheckAnswere.visibility = View.INVISIBLE
+        binding.editTextAnswere.visibility = View.INVISIBLE
+        binding.imageButtonSound.visibility = View.INVISIBLE
+        binding.imageViewWord.setImageResource(R.drawable.finish_lesson)
+        binding.textViewWords.text = "KONIEC LEKCJI"
+        binding.textViewWords.textSize = 40f
+        binding.textViewWords.setTextColor(Color.parseColor("#C1B443"))
+        binding.buttonIDontKnow.visibility = View.INVISIBLE
+        binding.buttonFinishLesson.visibility = View.VISIBLE
+        binding.buttonContinue.visibility = View.INVISIBLE
+        MediaPlayer.create(this, R.raw.finish_lesson).start()
     }
 }

@@ -29,6 +29,10 @@ class MainActivity : AppCompatActivity() {
             fillDataBase.fill(applicationContext)
             val editor: SharedPreferences.Editor = sharedPref.edit()
             editor.putBoolean("isCreatedDataBase",true)
+            //------------------ DO POPRAWY--------------------
+            editor.putInt("WordsToLearnPlToEng",3)
+            editor.putInt("WordsToLearnEngToPl",3)
+            //--------------------------------------
             editor.commit()
         }
 
