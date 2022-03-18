@@ -9,7 +9,7 @@ import android.os.Bundle
 import android.provider.BaseColumns
 import android.view.View
 import com.example.angielski.databinding.ActivityLearningBinding
-//import com.example.angielski.databinding.ActivityMainBinding
+import com.example.angielski.databinding.ActivityMainBinding
 import java.util.*
 
 class LearningActivity : AppCompatActivity() {

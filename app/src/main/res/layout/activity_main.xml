@@ -22,22 +22,34 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="TextContrastCheck" />
 
-    <Button
-        android:id="@+id/buttonLearning"
+    <TextView
+        android:id="@+id/textViewInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="@string/button_1"
-        android:textSize="34sp"
+        android:layout_marginTop="40dp"
+        android:text="@string/app_name"
+        android:textColor="#000000"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textTitle" />
 
     <Button
+        android:id="@+id/buttonLearning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        android:text="@string/button_1"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewInfo" />
+
+    <Button
         android:id="@+id/buttonRepeating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="35dp"
         android:contentDescription="@string/button_repeating"
         android:text="@string/button_repeating"
         android:textSize="34sp"
@@ -49,7 +61,7 @@
         android:id="@+id/buttonSettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="35dp"
         android:text="@string/button_settings"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -60,7 +72,7 @@
         android:id="@+id/buttonAboutApp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="35dp"
         android:text="@string/button_about_app"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"

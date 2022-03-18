@@ -9,20 +9,21 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/tlo_1"
         android:contentDescription="@string/settings_describ">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:padding="15dp"
                 android:text="@string/button_settings"
-                android:textSize="34sp" />
+                android:textSize="48sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -36,15 +37,18 @@
                     android:layout_weight="1"
                     android:padding="5dp"
                     android:text="Słówka:"
-                    android:textSize="24sp" />
+                    android:textSize="34sp" />
 
                 <EditText
                     android:id="@+id/editTextWord"
-                    android:layout_width="wrap_content"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
+
                     android:layout_weight="1"
                     android:ems="10"
+                    android:hint="0"
                     android:inputType="number"
+                    android:textSize="34sp"
                     tools:ignore="TouchTargetSizeCheck" />
 
             </LinearLayout>
@@ -56,12 +60,15 @@
                 android:layout_weight="1"
                 android:padding="5dp"
                 android:text="Czas powtórek:"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                android:visibility="invisible" />
 
             <RadioGroup
+                android:id="@+id/radioGroup1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="invisible">
 
                 <TextView
                     android:id="@+id/textView5"
@@ -77,12 +84,12 @@
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:autofillHints=""
                     android:ems="10"
-                    android:hint="10"
+                    android:hint="15"
                     android:inputType="textPersonName"
                     android:minHeight="48dp"
-                    tools:ignore="DuplicateSpeakableTextCheck"
-                    android:autofillHints="" />
+                    tools:ignore="DuplicateSpeakableTextCheck" />
 
                 <RadioButton
                     android:id="@+id/radioButton"
@@ -110,15 +117,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:checked="true"
                     android:text="@string/minute"
                     tools:ignore="TouchTargetSizeCheck" />
 
             </RadioGroup>
 
             <RadioGroup
+                android:id="@+id/radioGroup2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="invisible">
 
                 <TextView
                     android:id="@+id/textRepeat_1"
@@ -134,16 +144,17 @@
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:autofillHints=""
                     android:ems="10"
-                    android:hint="10"
+                    android:hint="2"
                     android:inputType="textPersonName"
-                    android:minHeight="48dp"
-                    android:autofillHints="" />
+                    android:minHeight="48dp" />
 
                 <RadioButton
                     android:id="@+id/radioButton_2_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:checked="true"
                     android:text="@string/hour"
                     tools:ignore="TouchTargetSizeCheck" />
 
@@ -172,9 +183,11 @@
             </RadioGroup>
 
             <RadioGroup
+                android:id="@+id/radioGroup3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="invisible">
 
                 <TextView
                     android:id="@+id/textRepeat_2"
@@ -190,16 +203,17 @@
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:autofillHints=""
                     android:ems="10"
-                    android:hint="10"
+                    android:hint="7"
                     android:inputType="textPersonName"
-                    android:minHeight="48dp"
-                    android:autofillHints="" />
+                    android:minHeight="48dp" />
 
                 <RadioButton
                     android:id="@+id/radioButton_3_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:checked="true"
                     android:text="@string/hour"
                     tools:ignore="TouchTargetSizeCheck" />
 
@@ -223,6 +237,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/minute"
+                    android:textColor="#000000"
                     tools:ignore="TouchTargetSizeCheck" />
 
             </RadioGroup>
@@ -231,7 +246,9 @@
                 android:id="@+id/buttonSave"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="ZAPISZ" />
+                android:padding="20dp"
+                android:text="ZAPISZ"
+                android:textSize="34sp" />
 
         </LinearLayout>
     </ScrollView>
