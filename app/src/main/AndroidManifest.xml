@@ -14,7 +14,8 @@
             android:exported="false" />
         <activity
             android:name=".LearningActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".SettingsActivity"
             android:exported="false" />

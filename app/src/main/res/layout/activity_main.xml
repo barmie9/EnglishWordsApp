@@ -18,16 +18,20 @@
             android:layout_gravity="center"
             android:orientation="vertical">
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+
             <TextView
                 android:id="@+id/textTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_marginTop="50dp"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:text="@string/text_1"
                 android:textAlignment="center"
                 android:textColor="#41074A"
-                android:textIsSelectable="false"
                 android:textSize="44sp"
                 tools:ignore="TextContrastCheck" />
 
@@ -35,8 +39,8 @@
                 android:id="@+id/textViewInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_gravity="center"
+                android:gravity="center"
                 android:layout_marginTop="40dp"
                 android:text="@string/learning_today"
                 android:textColor="#000000"
@@ -46,9 +50,9 @@
                 android:id="@+id/textViewInfo2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
+                android:gravity="center"
                 android:text="@string/learning_all"
                 android:textColor="#212121"
                 android:textSize="24sp" />
@@ -57,9 +61,9 @@
                 android:id="@+id/buttonLearning"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
+                android:gravity="center"
                 android:text="@string/button_1"
                 android:textSize="34sp" />
 
@@ -67,10 +71,10 @@
                 android:id="@+id/buttonRepeating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
                 android:contentDescription="@string/button_repeating"
+                android:gravity="center"
                 android:text="@string/button_repeating"
                 android:textSize="34sp" />
 
@@ -78,9 +82,9 @@
                 android:id="@+id/buttonSettings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
+                android:gravity="center"
                 android:text="@string/button_settings"
                 android:textSize="34sp" />
 
@@ -88,9 +92,9 @@
                 android:id="@+id/buttonAboutApp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
+                android:gravity="center"
                 android:text="@string/button_about_app"
                 android:textSize="34sp" />
         </LinearLayout>

@@ -145,6 +145,12 @@ class LearningActivity : AppCompatActivity() {
         // ----- Support for the "Check" button -----
         binding.buttonCheckAnswere.setOnClickListener {
 
+            // ----- Change image word view  from question mark to picture  if is set question mark -----
+            if(jj == 1){
+                val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+                binding.imageViewWord.setImageResource(id)
+            }
+
             // ----- Get data from user -----
             answere = binding.editTextAnswere.text.toString()
 
@@ -157,13 +163,17 @@ class LearningActivity : AppCompatActivity() {
             // ----- If correct data -----
             if(checkAnswere.check(englishWord,answere)){
 
-                // ----- Increment  wordsCounter and update  LOCAL variable words to learn (ang->pl and pl->ang) -----
-                wordsCounter[jj]++
-                editor.putInt(wordsToLearnName[jj], wordsToLearn[jj] - wordsCounter[jj])
+                // ----- Update only if it is in learning mode -----
+                if(isLearning){
+                    // ----- Increment  wordsCounter and update  LOCAL variable words to learn (ang->pl and pl->ang) -----
+                    wordsCounter[jj]++
+                    editor.putInt(wordsToLearnName[jj], wordsToLearn[jj] - wordsCounter[jj])
 
-                // ----- Increment total number words  by 0.5 in LOCAL variable -----
-                editor.putFloat("TotalLearnedWords", 0.5f + (sharedPref.getFloat("TotalLearnedWords",0f)))
-                editor.apply()
+                    // ----- Increment total number words  by 0.5 in LOCAL variable -----
+                    editor.putFloat("TotalLearnedWords", 0.5f + (sharedPref.getFloat("TotalLearnedWords",0f)))
+                    editor.apply()
+                }
+
 
                 // ----- Positive sound effect -----
                 MediaPlayer.create(this,R.raw.duolingo_1).start()
@@ -255,7 +265,13 @@ class LearningActivity : AppCompatActivity() {
                     binding.textViewWords.text = polishWord
 
                     val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
-                    binding.imageViewWord.setImageResource(id)
+
+
+                    // ----- If ang->pl hide word picture and show question mark-----
+                    if(jj == 1)
+                        binding.imageViewWord.setImageResource(R.drawable.question_mark)
+                    else
+                        binding.imageViewWord.setImageResource(id)
 
                 }
             }
