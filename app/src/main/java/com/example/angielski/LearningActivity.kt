@@ -153,6 +153,9 @@ class LearningActivity : AppCompatActivity() {
                 // ----- Increment  wordsCounter and update  LOCAL variable words to learn (ang->pl and pl->ang) -----
                 wordsCounter[jj]++
                 editor.putInt(wordsToLearnName[jj], wordsToLearn[jj] - wordsCounter[jj])
+
+                // ----- Increment total number words  by 0.5 in LOCAL variable -----
+                editor.putFloat("TotalLearnedWords", 0.5f + (sharedPref.getFloat("TotalLearnedWords",0f)))
                 editor.apply()
 
                 // ----- Positive sound effect -----
@@ -288,6 +291,7 @@ class LearningActivity : AppCompatActivity() {
 
 //--------------------------------------------------------------------------------------------------------
     }
+
 
     fun setViewFinishLesson(){
         binding.buttonCheckAnswere.visibility = View.INVISIBLE

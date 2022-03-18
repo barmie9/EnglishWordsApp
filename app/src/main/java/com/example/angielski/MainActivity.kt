@@ -30,9 +30,11 @@ class MainActivity : AppCompatActivity() {
 
         // ----- Create and fill DataBase for the first time -----
         if( !(sharedPref.getBoolean("isCreatedDataBase", false)) ){
-            fillDataBase.fill(applicationContext)
+            val numWords = fillDataBase.fill(applicationContext)
             val editor: SharedPreferences.Editor = sharedPref.edit()
             editor.putBoolean("isCreatedDataBase",true)
+            editor.putInt("AllWordsNumber", numWords)
+            editor.putFloat("TotalLearnedWords",0f)
             //------------------ DO POPRAWY--------------------
             editor.putInt("wordsCount",20)
             editor.apply()
@@ -57,11 +59,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-            // ----- Set info about number of learned words -----
-            val plToEng = sharedPref.getInt("WordsToLearnPlToEng",50)
-            val engToPl = sharedPref.getInt("WordsToLearnEngToPl",50)
-            val dailyLimit= sharedPref.getInt("wordsCount",50)
-            binding.textViewInfo.text = "Nauczone:  ${dailyLimit - (plToEng + engToPl)/2 }/${dailyLimit}"
+
 
 
         // ----- Open a new activity "LearningActivity" if Learning  -----
@@ -81,19 +79,36 @@ class MainActivity : AppCompatActivity() {
         }
         // ----- Open a new activity "SettingsActivity" -----
         binding.buttonSettings.setOnClickListener {
-            //Nowa aktywność odpalajaca SettingsdActivity
             var newActivity: Intent = Intent(applicationContext, SettingsActivity::class.java)
             startActivity(newActivity)
         }
 
         // ----- Open a new activity "AboutAppActivity" -----
         binding.buttonAboutApp.setOnClickListener {
-            //TODO
+            var newActivity: Intent = Intent(applicationContext, AboutAppActivity::class.java)
+            startActivity(newActivity)
         }
 
 
     }
 
 
+    override fun onStart() {
+        super.onStart()
+        // ----- Local file (variable) "Settings" -----
+        val sharedPref: SharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE)
+
+
+        // ----- Set info about number of learned words -----
+        val plToEng = sharedPref.getInt("WordsToLearnPlToEng",50)
+        val engToPl = sharedPref.getInt("WordsToLearnEngToPl",50)
+        val dailyLimit= sharedPref.getInt("wordsCount",50)
+        binding.textViewInfo.text = "Nauczone dzisiaj:  ${dailyLimit - (plToEng + engToPl)/2 }/${dailyLimit}"// = "Nauczone dzisiaj:  ${dailyLimit - (plToEng + engToPl)/2 }/${dailyLimit}"
+
+        // ----- Set info about total number of learned words -----
+        val totalWords = sharedPref.getInt("AllWordsNumber",0)
+        val totalLearnedWords = sharedPref.getFloat("TotalLearnedWords",0f)
+        binding.textViewInfo2.text = "Cały kurs:  $totalLearnedWords/$totalWords "
+    }
 
 }

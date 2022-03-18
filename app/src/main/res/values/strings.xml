@@ -4,6 +4,18 @@
     <string name="button_1">Nauka</string>
     <string name="button_repeating">Powtórki</string>
     <string name="text_2">Podaj Słówko</string>
+    <string name="learning_today">Nauczone dzisiaj:</string>
+    <string name="learning_all">Cały kurs:</string>
+    <string name="scroll_view">Scroll View</string>
+
+    <string name="about_app_title">O Aplikacji</string>
+    <string name="about_app_text"> Aplikacja umożliwiająca efektywną nauke słówek.
+        Zawiera system powtórek słówek, aby utrwalić zdobytą wiedzę.
+        Staraj się skojarzyć dane słówko z jakimś obrazem, a następnie wyobrazić sobie wymyślony obraz z jego znaczeniem.
+        Przykład: Słówko forest - las. Wyobraź sobie tytułowego bohatera filmu "Forrest Gump" biegnącego przez las i potykającego się o przewrócone drzewo.
+        Dobrze jest też wypowiedzieć w tej sytuacji polskie i angielskie znaczenie słówka. Pamiętaj też, że śmieszne historyjki lepiej zapisują się w pamięci. </string>
+
+
 
 
     <string name="Text_3">Pierwsza Kolumna</string>

@@ -49,7 +49,7 @@ object fillDataBase{
     val value_1 = ContentValues()
 
 
-    fun fill(context: Context){
+    fun fill(context: Context):Int { // Return: Number of words in db
         val dbHelper = DataBaseHelper(context)
         val db = dbHelper.writableDatabase
 
@@ -150,6 +150,22 @@ object fillDataBase{
         value_1.put("learned_ang_to_pl", "f")
         db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
 
+
+        val queueSelectNumWords = "SELECT COUNT() AS NUMBER FROM ${TableInfo.TABLE_NAME} ;"
+        val result = db.rawQuery(queueSelectNumWords,null)
+//        db.close()
+
+        // ----- Return number of words in db ------
+        if(result.moveToFirst()){
+            var numStringRes = 0
+            numStringRes =  result.getInt(0)
+//            result.close()
+            return  numStringRes
+        }
+        else{
+//            result.close()
+            return  0
+        }
 
     }
 }
