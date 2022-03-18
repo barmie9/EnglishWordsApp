@@ -7,6 +7,7 @@ import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.BaseColumns
+import android.util.Log
 import android.view.View
 import com.example.angielski.databinding.ActivityLearningBinding
 import com.example.angielski.databinding.ActivityMainBinding
@@ -79,19 +80,24 @@ class LearningActivity : AppCompatActivity() {
         var wordsCounter = arrayOf(0,0) // Counter of correct  words
         val wordsToLearnName = arrayOf("WordsToLearnPlToEng","WordsToLearnEngToPl")
         val wordsToLearn  = arrayOf(sharedPref.getInt("WordsToLearnPlToEng",9),sharedPref.getInt("WordsToLearnEngToPl",9)) // number of words to learn, for index 0 - pl->ang and 1 ang->pl
+        val totalWordsToLearn = sharedPref.getFloat("TotalWordsToLearn",0f) // Remaining words to learn
         var ii =0 // Actual words (Column) - Words
         var jj =0 // ang-> pl or pl-> ang
 
 
         // ----- Create and fill a queue. Needed to repeat words until they are learned -----
         var myQueue: Queue<Array<Int>> = LinkedList<Array<Int>>()
-//        var exampleTab: Array<Int> = arrayOf(0,1)
+
+        if(wordsToLearn[0] > totalWordsToLearn)  wordsToLearn[0] = totalWordsToLearn.toInt()
+        if(wordsToLearn[1] > totalWordsToLearn)  wordsToLearn[1] = totalWordsToLearn.toInt()
+
         if(isLearning){
             for(i in 0..1)
                 for(j in 0 until wordsToLearn[i])
                     myQueue.add(arrayOf(i,j))
+
         }
-        // -----
+        // ----- To repeating -----
         else{
             for(i in 0..1)
                 for(j in 0 until result[i].count)
@@ -108,14 +114,14 @@ class LearningActivity : AppCompatActivity() {
             jj = myOneTab[0]
 
             // ----- Fill data the first time -----
-            if(result[0].moveToFirst() ){
-                polishWord =  result[0].getString(result[0].getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
+            if(result[jj].moveToFirst() ){
+                polishWord =  result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
                 binding.textViewWords.text = polishWord
-                englishWord = result[0].getString(result[0].getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
-                val id = resources.getIdentifier(result[0].getString(result[0].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+                englishWord = result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
+                val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
                 binding.imageViewWord.setImageResource(id)
             }
-            else // If data pl->ang does not exist
+            else // ----- Possibly redundant. To check -----
             {
                 if(result[1].moveToFirst()){
                     polishWord =  result[1].getString(result[1].getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
@@ -142,6 +148,7 @@ class LearningActivity : AppCompatActivity() {
             // ----- Get data from user -----
             answere = binding.editTextAnswere.text.toString()
 
+            // Set textView to ang->pl or pl->ang
             if(jj ==  0)
                 binding.textViewWords.text = "$polishWord - $englishWord"
             else
@@ -210,6 +217,8 @@ class LearningActivity : AppCompatActivity() {
             binding.buttonCheckAnswere.visibility = View.INVISIBLE
             binding.buttonContinue.visibility = View.VISIBLE
 
+            // ----- Set editText field by user answer -----
+            binding.editTextAnswere.setText(answere)
             hideKeyboard()
 
         }

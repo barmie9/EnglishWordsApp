@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
             val numWords = fillDataBase.fill(applicationContext)
             val editor: SharedPreferences.Editor = sharedPref.edit()
             editor.putBoolean("isCreatedDataBase",true)
-            editor.putInt("AllWordsNumber", numWords)
+            editor.putFloat("AllWordsNumber", numWords.toFloat())
             editor.putFloat("TotalLearnedWords",0f)
             //------------------ DO POPRAWY--------------------
             editor.putInt("wordsCount",20)
@@ -54,6 +54,7 @@ class MainActivity : AppCompatActivity() {
             val editor: SharedPreferences.Editor = sharedPref.edit()
             editor.putInt("WordsToLearnPlToEng",sharedPref.getInt("wordsCount",50))
             editor.putInt("WordsToLearnEngToPl",sharedPref.getInt("wordsCount",50))
+            editor.putString("prevDate",currentDate)
             editor.apply()
         }
 
@@ -97,18 +98,22 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         // ----- Local file (variable) "Settings" -----
         val sharedPref: SharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = sharedPref.edit()
 
 
         // ----- Set info about number of learned words -----
         val plToEng = sharedPref.getInt("WordsToLearnPlToEng",50)
         val engToPl = sharedPref.getInt("WordsToLearnEngToPl",50)
         val dailyLimit= sharedPref.getInt("wordsCount",50)
-        binding.textViewInfo.text = "Nauczone dzisiaj:  ${dailyLimit - (plToEng + engToPl)/2 }/${dailyLimit}"// = "Nauczone dzisiaj:  ${dailyLimit - (plToEng + engToPl)/2 }/${dailyLimit}"
+        binding.textViewInfo.text = "Nauczone dzisiaj:  ${dailyLimit - (plToEng + engToPl)/2 }/${dailyLimit}"
 
         // ----- Set info about total number of learned words -----
-        val totalWords = sharedPref.getInt("AllWordsNumber",0)
+        val totalWords = sharedPref.getFloat("AllWordsNumber",0f)
         val totalLearnedWords = sharedPref.getFloat("TotalLearnedWords",0f)
         binding.textViewInfo2.text = "Cały kurs:  $totalLearnedWords/$totalWords "
+
+        editor.putFloat("TotalWordsToLearn", totalWords - totalLearnedWords)
+        editor.apply()
     }
 
 }
