@@ -6,6 +6,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -16,8 +17,7 @@ object TableInfo: BaseColumns{
     const val TABLE_NAME = "My_table"
     const val TABLE_COLUMN_POLISH= "polish_word"
     const val TABLE_COLUMN_ENGLISH = "english_word"
-    const val TABLE_COLUMN_ID_PICTURE = "id_picture"
-    const val TABLE_COLUMN_ID_SOUND = "id_sound"
+    const val TABLE_COLUMN_ID_PICTURE_SOUND = "id_picture_sound"
     const val TABLE_COLUMN_LEARNED_PL_TO_ANG = "learned_pl_to_ang"
     const val TABLE_COLUMN_LEARNED_ANG_TO_PL = "learned_ang_to_pl"
     const val TABLE_COLUMN_DATE = "date_1"
@@ -32,8 +32,7 @@ object BasicCommand{
                 "${BaseColumns._ID} INTEGER PRIMARY KEY," +
                 "${TableInfo.TABLE_COLUMN_POLISH} TEXT NOT NULL,"+
                 "${TableInfo.TABLE_COLUMN_ENGLISH} TEXT NOT NULL,"+
-                "${TableInfo.TABLE_COLUMN_ID_PICTURE} INTEGER NOT NULL,"+
-                "${TableInfo.TABLE_COLUMN_ID_SOUND} INTEGER ,"+
+                "${TableInfo.TABLE_COLUMN_ID_PICTURE_SOUND} INTEGER NOT NULL,"+
                 "${TableInfo.TABLE_COLUMN_LEARNED_PL_TO_ANG} TEXT NOT NULL,"+
                 "${TableInfo.TABLE_COLUMN_LEARNED_ANG_TO_PL} TEXT NOT NULL,"+
                 "${TableInfo.TABLE_COLUMN_DATE} TEXT ,"+
@@ -58,97 +57,37 @@ object fillDataBase{
         db.execSQL(BasicCommand.SQL_CREATE_TABLE)
         //  -------------------------------------------------------------------------------
 
-        val saveToastInfo = Toast.makeText(context, "Baza Utworzona", Toast.LENGTH_SHORT)
+        val saveToastInfo = Toast.makeText(context, "Baza Słówek Utworzona", Toast.LENGTH_SHORT)
         saveToastInfo.show()
 
-        value_1.put("polish_word", "zły")
-        value_1.put("english_word", "angry")
-        value_1.put("id_picture", "angry")
-//        value_1.put("id_sound", R.raw.angry.toString())
-        value_1.put("learned_pl_to_ang", "f")
-        value_1.put("learned_ang_to_pl", "f")
-        db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
-        //   --------------------------------
-        value_1.clear()
-        value_1.put("polish_word", "kołdra/koc")
-        value_1.put("english_word", "coverlet")
-        value_1.put("id_picture", "coverlet")
-//        value_1.put("id_sound", R.raw.coverlet.toString())
-        value_1.put("learned_pl_to_ang", "f")
-        value_1.put("learned_ang_to_pl", "f")
-        db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
-        //   --------------------------------
-        value_1.clear()
-        value_1.put("polish_word", "zasłona")
-        value_1.put("english_word", "curtain")
-        value_1.put("id_picture", "curtain")
-//        value_1.put("id_sound", R.raw.curtain.toString())
-        value_1.put("learned_pl_to_ang", "f")
-        value_1.put("learned_ang_to_pl", "f")
-        db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
-        //   --------------------------------
-        value_1.clear()
-        value_1.put("polish_word", "latarka")
-        value_1.put("english_word", "flashlight")
-        value_1.put("id_picture", "flashlight")
-//        value_1.put("id_sound", R.raw.flashlight.toString())
-        value_1.put("learned_pl_to_ang", "f")
-        value_1.put("learned_ang_to_pl", "f")
-        db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
-        //   --------------------------------
-        value_1.clear()
-        value_1.put("polish_word", "panele podłogowe")
-        value_1.put("english_word", "floor panels")
-        value_1.put("id_picture", "floor_panels")
-//        value_1.put("id_sound", R.raw.floor_panels.toString())
-        value_1.put("learned_pl_to_ang", "f")
-        value_1.put("learned_ang_to_pl", "f")
-        db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
-        //   --------------------------------
-        value_1.clear()
-        value_1.put("polish_word", "szczęśliwy")
-        value_1.put("english_word", "happy")
-        value_1.put("id_picture", "happy")
-//        value_1.put("id_sound", R.raw.happy.toString())
-        value_1.put("learned_pl_to_ang", "f")
-        value_1.put("learned_ang_to_pl", "f")
-        db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
-        //   --------------------------------
-        value_1.clear()
-        value_1.put("polish_word", "maska")
-        value_1.put("english_word", "mask")
-        value_1.put("id_picture", "mask")
-//        value_1.put("id_sound", R.raw.mask.toString())
-        value_1.put("learned_pl_to_ang", "f")
-        value_1.put("learned_ang_to_pl", "f")
-        db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
-        //   --------------------------------
-        value_1.clear()
-        value_1.put("polish_word", "spodnie")
-        value_1.put("english_word", "pants")
-        value_1.put("id_picture", "pants")
-//        value_1.put("id_sound", R.raw.pants.toString())
-        value_1.put("learned_pl_to_ang", "f")
-        value_1.put("learned_ang_to_pl", "f")
-        db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
-        //   --------------------------------
-        value_1.clear()
-        value_1.put("polish_word", "błyszczący")
-        value_1.put("english_word", "shiny")
-        value_1.put("id_picture", "shiny")
-//        value_1.put("id_sound", R.raw.shiny.toString())
-        value_1.put("learned_pl_to_ang", "f")
-        value_1.put("learned_ang_to_pl", "f")
-        db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
-        //   --------------------------------
-        value_1.clear()
-        value_1.put("polish_word", "skarpetki")
-        value_1.put("english_word", "socks")
-        value_1.put("id_picture", "socks")
-//        value_1.put("id_sound", R.raw.socks.toString())
-        value_1.put("learned_pl_to_ang", "f")
-        value_1.put("learned_ang_to_pl", "f")
-        db.insertOrThrow(TableInfo.TABLE_NAME, null, value_1 )
+
+
+        val beginQuery = "INSERT INTO ${TableInfo.TABLE_NAME} " +
+                "(${TableInfo.TABLE_COLUMN_POLISH} , ${TableInfo.TABLE_COLUMN_ENGLISH} ,${TableInfo.TABLE_COLUMN_ID_PICTURE_SOUND} ,${TableInfo.TABLE_COLUMN_LEARNED_PL_TO_ANG} ,${TableInfo.TABLE_COLUMN_LEARNED_ANG_TO_PL} ) VALUES "
+
+        Log.d("TAG",beginQuery+"" +
+                "('zły','angry','angry','f','f'),\n" +
+                "('kołdra/koc','coverlet','coverlet','f','f'),\n" +
+                "('zasłona','curtain','curtain','f','f'),\n" +
+                "('latarka','flashlight','flashlight','f','f'),\n" +
+                "('panele podłogowe','floor panels','floor_panels','f','f'),\n" +
+                "('szczęśliwy','happy','happy','f','f'),\n" +
+                "('maska','mask','mask','f','f'),\n" +
+                "('spodnie','pants','pants','f','f'),\n" +
+                "('błyszczący','shiny','shiny','f','f'),\n" +
+                "('skarpetki','socks','socks','f','f');")
+
+        db.execSQL(beginQuery+"" +
+                "('zły','angry','angry','f','f'),\n" +
+                "('kołdra/koc','coverlet','coverlet','f','f'),\n" +
+                "('zasłona','curtain','curtain','f','f'),\n" +
+                "('latarka','flashlight','flashlight','f','f'),\n" +
+                "('panele podłogowe','floor panels','floor_panels','f','f'),\n" +
+                "('szczęśliwy','happy','happy','f','f'),\n" +
+                "('maska','mask','mask','f','f'),\n" +
+                "('spodnie','pants','pants','f','f'),\n" +
+                "('błyszczący','shiny','shiny','f','f'),\n" +
+                "('skarpetki','socks','socks','f','f');")
 
 
         val queueSelectNumWords = "SELECT COUNT() AS NUMBER FROM ${TableInfo.TABLE_NAME} ;"

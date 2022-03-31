@@ -1,14 +1,17 @@
 package com.example.angielski
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.BaseColumns
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
 import com.example.angielski.databinding.ActivityLearningBinding
 import com.example.angielski.databinding.ActivityMainBinding
 import java.util.*
@@ -26,6 +29,9 @@ class LearningActivity : AppCompatActivity() {
 
         // ----- Tag for the tests -----
 //        val TAG = "TAG"
+
+        // ----- Class to convert text to speech -----
+        var tts: TTS = TTS(this)
 
         // ----- How to get to id layout -----
         binding = ActivityLearningBinding.inflate(layoutInflater)
@@ -47,6 +53,7 @@ class LearningActivity : AppCompatActivity() {
         val query: Array<String> = arrayOf("","")
 
         // ----- Create a few query to db, to repeating or learning  -----
+        // TO IMPROVE  only a certain number of the first lines.
         if(isLearning){ //learning
             query1 = "SELECT * FROM " + TableInfo.TABLE_NAME +
                     " WHERE ${TableInfo.TABLE_COLUMN_LEARNED_PL_TO_ANG} = 'f' "
@@ -78,8 +85,10 @@ class LearningActivity : AppCompatActivity() {
         var polishWord = ""
         var answere = ""
         var wordsCounter = arrayOf(0,0) // Counter of correct  words
-        val wordsToLearnName = arrayOf("WordsToLearnPlToEng","WordsToLearnEngToPl")
-        val wordsToLearn  = arrayOf(sharedPref.getInt("WordsToLearnPlToEng",9),sharedPref.getInt("WordsToLearnEngToPl",9)) // number of words to learn, for index 0 - pl->ang and 1 ang->pl
+        val learnedWordsNames = arrayOf("learnedWordsPlToEng","learnedWordsEngToPl")
+        val dailyWordsLimit = sharedPref.getFloat("dailyLimit",0f)
+        val learnedWords  = arrayOf(sharedPref.getFloat(learnedWordsNames[0],9f),sharedPref.getFloat(learnedWordsNames[1],9f)) // number of words to learn, for index 0 - pl->ang and 1 ang->pl
+        val wordsToLearn  = arrayOf(dailyWordsLimit - learnedWords[0],dailyWordsLimit - learnedWords[1])
         val totalWordsToLearn = sharedPref.getFloat("TotalWordsToLearn",0f) // Remaining words to learn
         var ii =0 // Actual words (Column) - Words
         var jj =0 // ang-> pl or pl-> ang
@@ -88,12 +97,18 @@ class LearningActivity : AppCompatActivity() {
         // ----- Create and fill a queue. Needed to repeat words until they are learned -----
         var myQueue: Queue<Array<Int>> = LinkedList<Array<Int>>()
 
-        if(wordsToLearn[0] > totalWordsToLearn)  wordsToLearn[0] = totalWordsToLearn.toInt()
-        if(wordsToLearn[1] > totalWordsToLearn)  wordsToLearn[1] = totalWordsToLearn.toInt()
+        // ----- If words to learn is more than available words in DB then reduce ------
+        if(wordsToLearn[0] > totalWordsToLearn){
+            wordsToLearn[0] = totalWordsToLearn
+        }
+        if(wordsToLearn[1] > totalWordsToLearn){
+            wordsToLearn[1] = totalWordsToLearn
+
+        }
 
         if(isLearning){
             for(i in 0..1)
-                for(j in 0 until wordsToLearn[i])
+                for(j in 0 until wordsToLearn[i].toInt())
                     myQueue.add(arrayOf(i,j))
 
         }
@@ -118,7 +133,7 @@ class LearningActivity : AppCompatActivity() {
                 polishWord =  result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
                 binding.textViewWords.text = polishWord
                 englishWord = result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
-                val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+                val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE_SOUND)), "drawable", packageName )
                 binding.imageViewWord.setImageResource(id)
             }
             else // ----- Possibly redundant. To check -----
@@ -127,7 +142,7 @@ class LearningActivity : AppCompatActivity() {
                     polishWord =  result[1].getString(result[1].getColumnIndex(TableInfo.TABLE_COLUMN_POLISH))
                     binding.textViewWords.text = polishWord
                     englishWord = result[1].getString(result[1].getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH))
-                    val id = resources.getIdentifier(result[1].getString(result[1].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+                    val id = resources.getIdentifier(result[1].getString(result[1].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE_SOUND)), "drawable", packageName )
                     binding.imageViewWord.setImageResource(id)
                 }
                 else // ----- Finish lesson -----
@@ -147,7 +162,7 @@ class LearningActivity : AppCompatActivity() {
 
             // ----- Change image word view  from question mark to picture  if is set question mark -----
             if(jj == 1){
-                val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+                val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE_SOUND)), "drawable", packageName )
                 binding.imageViewWord.setImageResource(id)
             }
 
@@ -161,13 +176,18 @@ class LearningActivity : AppCompatActivity() {
                 binding.textViewWords.text = "$englishWord - $polishWord"
 
             // ----- If correct data -----
-            if(checkAnswere.check(englishWord,answere)){
+            if(checkAnswere.check(answere,englishWord)){
 
                 // ----- Update only if it is in learning mode -----
                 if(isLearning){
                     // ----- Increment  wordsCounter and update  LOCAL variable words to learn (ang->pl and pl->ang) -----
-                    wordsCounter[jj]++
-                    editor.putInt(wordsToLearnName[jj], wordsToLearn[jj] - wordsCounter[jj])
+//                    wordsCounter[jj]++
+//                    editor.putInt(wordsToLearnName[jj], wordsToLearn[jj] - wordsCounter[jj])
+                    learnedWords[jj]++
+                    wordsToLearn[jj]--
+                    editor.putFloat(learnedWordsNames[jj], learnedWords[jj])
+
+                    Log.d("TAG", "Correct answer: Update var name: ${learnedWordsNames[jj]} , wordsToLearn: ${wordsToLearn[jj]} , learnedWords: ${learnedWords[jj]}")
 
                     // ----- Increment total number words  by 0.5 in LOCAL variable -----
                     editor.putFloat("TotalLearnedWords", 0.5f + (sharedPref.getFloat("TotalLearnedWords",0f)))
@@ -264,7 +284,7 @@ class LearningActivity : AppCompatActivity() {
                     // ----- Set the textView  with polish or english word -----
                     binding.textViewWords.text = polishWord
 
-                    val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "drawable", packageName )
+                    val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE_SOUND)), "drawable", packageName )
 
 
                     // ----- If ang->pl hide word picture and show question mark-----
@@ -280,8 +300,10 @@ class LearningActivity : AppCompatActivity() {
 
         // ----- The sound of word -----
         binding.imageButtonSound.setOnClickListener{
-            val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE)), "raw", packageName )
-            MediaPlayer.create(this,id).start()
+//            val id = resources.getIdentifier(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ID_PICTURE_SOUND)), "raw", packageName )
+//            MediaPlayer.create(this,id).start()
+//            readText(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH)),tts)
+            tts.speakOut(result[jj].getString(result[jj].getColumnIndex(TableInfo.TABLE_COLUMN_ENGLISH)))
         }
 
         // ----- Support for the second "IDontKnow" button
@@ -315,6 +337,7 @@ class LearningActivity : AppCompatActivity() {
 
 
 //--------------------------------------------------------------------------------------------------------
+
     }
 
 
@@ -332,4 +355,6 @@ class LearningActivity : AppCompatActivity() {
         binding.buttonContinue.visibility = View.INVISIBLE
         MediaPlayer.create(this, R.raw.finish_lesson).start()
     }
+
+
 }

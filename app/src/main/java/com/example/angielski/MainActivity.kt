@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.example.angielski.databinding.ActivityMainBinding
 import java.time.LocalDateTime
@@ -36,29 +37,14 @@ class MainActivity : AppCompatActivity() {
             editor.putFloat("AllWordsNumber", numWords.toFloat())
             editor.putFloat("TotalLearnedWords",0f)
             //------------------ DO POPRAWY--------------------
-            editor.putInt("wordsCount",20)
+            editor.putFloat("dailyLimit",5f)
             editor.apply()
             editor.putString("prevDate", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-            editor.putInt("WordsToLearnPlToEng",sharedPref.getInt("wordsCount",10))
-            editor.putInt("WordsToLearnEngToPl",sharedPref.getInt("wordsCount",10))
+            editor.putFloat("learnedWordsPlToEng",0f)
+            editor.putFloat("learnedWordsEngToPl",0f)
             //--------------------------------------
             editor.apply()
         }
-
-
-        // ----- Daily update of vocabulary words for learning -----
-        val currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        val lastDate = sharedPref.getString("prevDate","")
-        if(currentDate != lastDate){
-            Toast.makeText(applicationContext, "Nowe Słówka", Toast.LENGTH_SHORT).show()
-            val editor: SharedPreferences.Editor = sharedPref.edit()
-            editor.putInt("WordsToLearnPlToEng",sharedPref.getInt("wordsCount",50))
-            editor.putInt("WordsToLearnEngToPl",sharedPref.getInt("wordsCount",50))
-            editor.putString("prevDate",currentDate)
-            editor.apply()
-        }
-
-
 
 
 
@@ -102,10 +88,11 @@ class MainActivity : AppCompatActivity() {
 
 
         // ----- Set info about number of learned words -----
-        val plToEng = sharedPref.getInt("WordsToLearnPlToEng",50)
-        val engToPl = sharedPref.getInt("WordsToLearnEngToPl",50)
-        val dailyLimit= sharedPref.getInt("wordsCount",50)
-        binding.textViewInfo.text = "Nauczone dzisiaj:  ${dailyLimit - (plToEng + engToPl)/2 }/${dailyLimit}"
+        val plToEng = sharedPref.getFloat("learnedWordsPlToEng",51f)
+        val engToPl = sharedPref.getFloat("learnedWordsEngToPl",51f)
+        val dailyLimit= sharedPref.getFloat("dailyLimit",52f)
+        Log.d("TAG", "daily update: plToEng: $plToEng , engToPl: $engToPl , dailyLimit: $dailyLimit")
+        binding.textViewInfo.text = "Nauczone dzisiaj:  ${(plToEng + engToPl)/2f }/${dailyLimit}"
 
         // ----- Set info about total number of learned words -----
         val totalWords = sharedPref.getFloat("AllWordsNumber",0f)
@@ -114,6 +101,20 @@ class MainActivity : AppCompatActivity() {
 
         editor.putFloat("TotalWordsToLearn", totalWords - totalLearnedWords)
         editor.apply()
+
+
+
+        // ----- Daily update of vocabulary words for learning -----
+        val currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        val lastDate = sharedPref.getString("prevDate","")
+        if(currentDate != lastDate){
+            Toast.makeText(applicationContext, "Nowe Słówka", Toast.LENGTH_SHORT).show()
+            val editor: SharedPreferences.Editor = sharedPref.edit()
+            editor.putFloat("learnedWordsPlToEng",0f)
+            editor.putFloat("learnedWordsEngToPl",0f)
+            editor.putString("prevDate",currentDate)
+            editor.apply()
+        }
     }
 
 }

@@ -26,20 +26,24 @@ class SettingsActivity : AppCompatActivity() {
         // ----- Creare and update local file (variable) "Settings" -----
         val sharedPref: SharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE)
         val editor: SharedPreferences.Editor = sharedPref.edit()
-        binding.editTextWord.hint =  sharedPref.getInt("wordsCount",0).toString()
+        binding.editTextWord.hint =  sharedPref.getFloat("dailyLimit",0f).toInt().toString()
         binding.buttonSave.setOnClickListener {
-            val wordsCount = binding.editTextWord.text
+            val dailyLimit = binding.editTextWord.text
 
-            if(wordsCount.isEmpty()){
+            if(dailyLimit.isEmpty()){
                 Toast.makeText(applicationContext, "Brak wartości", Toast.LENGTH_SHORT).show()
             }
             else{
                 // ----- Add data and commit -----
-                editor.putInt("wordsCount",wordsCount.toString().toInt() )
+//                var wordsCountDB = sharedPref.getInt("wordsCount", 0)
+//                var wordsToLearnPl = sharedPref.getInt("WordsToLearnPlToEng", 0)
+//                var wordsToLearnEng = sharedPref.getInt("WordsToLearnEngToPl", 0)
+
+                editor.putFloat("dailyLimit",dailyLimit.toString().toFloat() )
 
                 // ----- Update daily words limit -----
-                editor.putInt("WordsToLearnPlToEng",wordsCount.toString().toInt() )
-                editor.putInt("WordsToLearnEngToPl",wordsCount.toString().toInt() )
+//                editor.putInt("WordsToLearnPlToEng",wordsCount.toString().toInt() )
+//                editor.putInt("WordsToLearnEngToPl",wordsCount.toString().toInt() )
 
                 editor.apply()
 
